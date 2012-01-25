@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="application/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			$(function() {
+				debug('connecting...');
+				var socket = io.connect('/puller');
+				var connected = false;
+				socket.on('connect', function() {
+					connected = true;
+					debug('connected.');
+					socket.on('log', function(data) {
+						if(data)
+							debug('log: '+data)
+					});
+					socket.on('subscribed', function(channel) {
+						debug('subscribed to '+channel);
+					});
+					socket.on('run', function(command) {
+						debug('running: '+command)
+						try {
+							eval(command);
+							debug('done!')
+						} catch(e) {
+							debug('failed!')
+						}
+					});
+				});
+				socket.on('message', function(msg) {
+					debug('msg: '+msg);
+				});
+
+				$('#subscribe-button').click(function() {
+					if(connected) {
+						socket.emit('subscribe', $('#subscribe-channel').val())
+					}
+				})
+
+				$('#run-button').click(function() {
+					if(connected) {
+						if($('#run-post').is(':checked')) {
+							$('#run-form').submit();
+						} else {
+							socket.emit('run', $('#run-password').val(), $('#subscribe-channel').val(), $('#run-command').val());
+						}
+					}
+				});
+				function debug(data) {
+					$('.logger').val(function(i, val) {
+						return data + "\n" + ( val ? val : '')
+					});
+				}
+
+			});
+
+		</script>
+	</head>
+	<body>
+		<form id="run-form" method="post" action="/puller/run">
+		<div>
+			SUBSCRIBE
+			<br>
+			<input type="text" name="channel" id="subscribe-channel">
+			<input type="button" id="subscribe-button">
+		</div>
+		<div>
+				RUN
+				<br>
+				<input type="text" name="command" id="run-command">
+				pwd:<input type="text" name="password" id="run-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
+				<input type="checkbox" id="run-post"> post?
+				<input type="button" id="run-button">
+		</div>
+		</form>
+		<div>
+			LOGGER
+			<br>
+			<textarea class="logger" rows="20" cols="100"></textarea>
+		</div>
+	</body>
+</html>
