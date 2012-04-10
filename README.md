@@ -117,7 +117,7 @@ Now, you can now run any javascript command for an specific channel.
 
 Example: ````puller_run 'mychannelname', 'alert("hello")'````
 
-Collaborate
+Contributing
 ------
 Fork this project on Github and join at http://wehack.it/projects/23-puller
 
