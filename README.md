@@ -121,6 +121,20 @@ Contributing
 ------
 Fork this project on Github and join at http://wehack.it/projects/23-puller
 
+What is still missing:
+
+* Scalability
+
+* Authentication
+
+* Private channels
+
+* Presence
+
+* SSL support
+
+* Testing
+
 License
 -----
 
