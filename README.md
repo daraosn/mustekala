@@ -50,7 +50,7 @@ Client Side
 
 * Add socket.io to your html header:
 
-````<script src="/socket.io/socket.io.js"></script>````
+````<script src="http://localhost:3001/socket.io/socket.io.js"></script>````
 
 * Now add a script tag with the client code:
 
