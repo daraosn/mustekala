@@ -31,9 +31,9 @@ Use the following flow to setup your own puller service:
 
 * Run a node server running node-puller.
 
-* Install javascript plugin to subscribe, receive and run commands.
+* Install javascript plugin to subscribe users on the client-side, receive and run commands.
 
-* Send a POST request to the desired channel to execute javascript commands.
+* Send a POST request from the server-side to the desired channel to execute javascript commands.
 
 Use cases:
 
