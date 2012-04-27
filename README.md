@@ -1,4 +1,4 @@
-node-puller
+Mustekala
 ======
 
 Real-time Push/Pull notification service made out of node.js, using socket.io.
@@ -138,4 +138,4 @@ What is still missing:
 License
 -----
 
-Node-puller is under MIT License. See the License file.
+Mustekala is under MIT License. See the License file.
