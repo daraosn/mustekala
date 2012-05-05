@@ -2,11 +2,12 @@
 <html>
 	<head>
 		<script type="application/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-		<script src="/socket.io/socket.io.js"></script>
+		<script src="/mustekala.js"></script>
 		<script>
 			$(function() {
 				debug('connecting...');
-				var socket = io.connect('/puller');
+				return
+				var socket = io.connect('/mustekala');
 				var connected = false;
 				socket.on('connect', function() {
 					connected = true;
@@ -26,6 +27,9 @@
 						} catch(e) {
 							debug('failed!')
 						}
+					});
+					socket.on('presence-token', function(token) {
+						debug('got presence token: '+token);
 					});
 				});
 				socket.on('message', function(msg) {
@@ -47,6 +51,17 @@
 						}
 					}
 				});
+				
+				$('#presence-preauthorize-button').click(function() {
+					if(connected) {
+						if($('#presence-post').is(':checked')) {
+							$('#presence-form').submit();
+						} else {
+							socket.emit('presence-preauthorize', $('#presence-password').val());
+						}
+					}
+				});
+				
 				function debug(data) {
 					$('.logger').val(function(i, val) {
 						return data + "\n" + ( val ? val : '')
@@ -56,23 +71,33 @@
 			});
 
 		</script>
+		<title>Mustekala :: Example</title>
 	</head>
 	<body>
-		<form id="run-form" method="post" action="/puller/run">
-		<div>
-			SUBSCRIBE
-			<br>
-			<input type="text" name="channel" id="subscribe-channel">
-			<input type="button" id="subscribe-button" value="subscribe">
-		</div>
-		<div>
+		<form id="run-form" method="post" action="/mustekala/run">
+			<div>
+				SUBSCRIBE
+				<br>
+				<input type="text" name="channel" id="subscribe-channel">
+				<input type="button" id="subscribe-button" value="subscribe">
+			</div>
+			<div>
 				RUN
 				<br>
 				<input type="text" name="command" id="run-command">
 				pwd:<input type="text" name="password" id="run-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
 				<input type="checkbox" id="run-post"> post?
 				<input type="button" id="run-button" value="run">
-		</div>
+			</div>
+		</form>
+		<form id="presence-form" method="post" action="/mustekala/presence/preauthorize">
+			<div>
+				PRESENCE PREAUTHORIZE
+				<br>
+				pwd:<input type="text" name="password" id="presence-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
+				<input type="checkbox" id="presence-post"> post?
+				<input type="button" id="presence-preauthorize-button" value="get token">
+			</div>
 		</form>
 		<div>
 			LOGGER

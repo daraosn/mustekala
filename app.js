@@ -1,40 +1,11 @@
-global.dump = function(arr,level) {
-	var dumped_text = "";
-	if(!level) level = 0;
-	
-	//The padding given at the beginning of the line.
-	var level_padding = "";
-	for(var j=0;j<level+1;j++) level_padding += "    ";
-	
-	if(typeof(arr) == 'object') { //Array/Hashes/Objects 
-		for(var item in arr) {
-			var value = arr[item];
-			
-			if(typeof(value) == 'object') { //If it is an array,
-				dumped_text += level_padding + "'" + item + "' ...\n";
-				dumped_text += dump(value,level+1);
-			} else {
-				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
-			}
-		}
-	} else { //Stings/Chars/Numbers etc.
-		dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
-	}
-	return dumped_text;
+try {
+	var config = require('./config.js');
+} catch(e) {
+	console.log("No 'config.js' found. Use 'config.template.js' to create one.");
+	process.exit(1);
 }
 
-global.debug=function(params,alive) {
-	console.log(params);
-	if(!alive) process.exit(0);
-}
-
-/**
- * Module dependencies.
- */
-
-var express = require('express')
-  , routes = require('./routes')
-
+var express = require('express');
 var app = module.exports = express.createServer();
 var io = require('socket.io').listen(app);
 
@@ -43,59 +14,84 @@ configure();
 var channels=[];
 
 // Sockets
-global.password = "bGINGS/(ADNfg78GASIMDbkASbj";
-var mySocket=io.of('/puller').on('connection', function(socket) {
+var socket=io.of('/mustekala').on('connection', function(client) {
 	//console.log('*** CLIENT CONNECTED ***')
-	//socket.emit('log','welcome')
+	//client.emit('log','welcome')
 	var currentChannel;
-	socket.on('subscribe', function(channel) {
+	var currentUserId;
+	client.on('subscribe', function(channel,presenceToken,userData) {
 		if(channel) {
 			if(currentChannel) {
-				socket.leave(currentChannel);
-				//socket.emit('log','left channel: '+currentChannel);
+				client.leave(currentChannel);
+				//client.emit('log','left channel: '+currentChannel);
 			}
-			socket.join(channel);
+			client.join(channel);
 			currentChannel=channel;
-			socket.emit('subscribed', channel);
-			//socket.emit('log','joined channel: '+channel)
+			client.emit('subscribed', channel);
+			//client.emit('log','joined channel: '+channel)
+			
 		}
 	});
-	socket.on('run', function(password, channel, command) {
+	client.on('authentificate', function() {
+		
+	});
+	client.on('run', function(password, channel, command) {
 		socketRun(password, channel, command)
+	});
+	client.on('disconnect',function(){
+		socket.emit('log','someone left!');
 	});
 });
 
 function socketRun(password, channel, command) {
-	if(password==global.password) {
-		//socket.emit('log','authorized')
+	if(password==config.password) {
+		//client.emit('log','authorized')
 		if(channel) {
-			mySocket.to(channel).emit('run', command);
-			//socket.emit('log','broadcasted to channel ('+channel+'): '+command);
+			socket.to(channel).emit('run', command);
+			//client.emit('log','broadcasted to channel ('+channel+'): '+command);
 		} else {
-			mySocket.emit('run', command);
-			//socket.emit('log','broadcasted to all: '+command);
+			socket.emit('run', command);
+			//client.emit('log','broadcasted to all: '+command);
 		}
 		return true;
 	} else {
-		//socket.emit('log','not authorized')
+		//client.emit('log','not authorized')
 		return false;
 	}	
 }
 
-app.post('/puller/run', function(req, res) {
+function socketPresencePreauthorize(password) {
+	if(password==config.password) {
+		do { var token = global.token(); } while(presenceKeys[token]);
+		presenceKeys[token] = new Date().getTime() + presenceKeyExpiry;
+		// console.log(global.dump(presenceKeys));
+		return token;
+	} else {
+		return false;
+	}
+}
+
+app.post('/mustekala/run', function(req, res) {
 	var password=req.body.password;
 	var channel=req.body.channel;
 	var command=req.body.command;
+	var data=req.body.data;
 	var result=socketRun(password, channel, command);
-	res.send(JSON.stringify({'success':result, 'channel': channel, 'command': command}));
+	res.send(JSON.stringify({'success':result, 'channel': channel, 'command': command, 'data': data}));
+});
+
+app.post('/mustekala/presence/preauthorize', function(req, res) {
+	var password=req.body.password;
+	var result=socketPreauthorize();
+	res.send(JSON.stringify({'success':result}));
 });
 
 
 function configure() {
 	// Configuration
 	app.configure(function(){
-	  app.set('views', __dirname + '/views');
-	  app.set('view engine', 'jade');
+	  // app.set('views', __dirname + '/views');
+	  // app.set('view engine', 'jade');
 	  app.use(express.bodyParser());
 	  app.use(express.methodOverride());
 	  app.use(app.router);
@@ -107,7 +103,7 @@ function configure() {
 	});
 	
 	app.configure('production', function(){
-	// Disable /public/monitor.html on production
+	// Disable /example.html on production
 		app.get('/example.html', function(req, res) {
 			res.redirect('/');
 		});
