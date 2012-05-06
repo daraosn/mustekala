@@ -5,64 +5,59 @@
 		<script src="/mustekala.js"></script>
 		<script>
 			$(function() {
-				debug('connecting...');
-				return
-				var socket = io.connect('/mustekala');
-				var connected = false;
-				socket.on('connect', function() {
-					connected = true;
-					debug('connected.');
-					socket.on('log', function(data) {
-						if(data)
-							debug('log: '+data)
-					});
-					socket.on('subscribed', function(channel) {
-						debug('subscribed to '+channel);
-					});
-					socket.on('run', function(command) {
-						debug('running: '+command)
-						try {
-							eval(command);
-							debug('done!')
-						} catch(e) {
-							debug('failed!')
-						}
-					});
-					socket.on('presence-token', function(token) {
-						debug('got presence token: '+token);
-					});
+				var mustekala=new Mustekala({
+					debug: 1
+					
 				});
-				socket.on('message', function(msg) {
-					debug('msg: '+msg);
+				
+				_debug('connecting...');
+				mustekala.connect(function() {
+					_debug('connected.');
 				});
+				mustekala.onDisconnect(function() {
+					_debug('disconnected from server.');
+				});
+				mustekala.onLog(function(data) {
+					_debug('log: '+data);
+				});
+				mustekala.onSubscribe(function(channel) {
+					_debug('subscribed to '+channel);
+				});
+				mustekala.onRun(function(channel,command,data) {
+					_debug('channel '+channel+' run: '+command+data);
+				});
+				
+				
+				// socket.on('connect', function() {
+				// 
+					// socket.on('run', function(command) {
+						// _debug('running: '+command)
+						// try {
+							// eval(command);
+							// _debug('done!')
+						// } catch(e) {
+							// _debug('failed!')
+						// }
+					// });
+					// socket.on('presence-token', function(token) {
+						// _debug('got presence token: '+token);
+					// });
+				// });
 
 				$('#subscribe-button').click(function() {
-					if(connected) {
-						socket.emit('subscribe', $('#subscribe-channel').val())
-					}
+					_debug('subscribing to '+$('#subscribe-channel').val()+'...');
+					mustekala.subscribe($('#subscribe-channel').val());
 				})
 
-				$('#run-button').click(function() {
-					if(connected) {
-						if($('#run-post').is(':checked')) {
+				$('#trigger-button').click(function() {
+						if($('#trigger-post').is(':checked')) {
 							$('#run-form').submit();
 						} else {
-							socket.emit('run', $('#run-password').val(), $('#subscribe-channel').val(), $('#run-command').val());
+							mustekala.trigger($('#trigger-password').val(), $('#subscribe-channel').val(), $('#trigger-event').val());
 						}
-					}
 				});
 				
-				$('#presence-preauthorize-button').click(function() {
-					if(connected) {
-						if($('#presence-post').is(':checked')) {
-							$('#presence-form').submit();
-						} else {
-							socket.emit('presence-preauthorize', $('#presence-password').val());
-						}
-					}
-				});
-				
-				function debug(data) {
+				function _debug(data) {
 					$('.logger').val(function(i, val) {
 						return data + "\n" + ( val ? val : '')
 					});
@@ -82,12 +77,12 @@
 				<input type="button" id="subscribe-button" value="subscribe">
 			</div>
 			<div>
-				RUN
+				TRIGGER
 				<br>
-				<input type="text" name="command" id="run-command">
-				pwd:<input type="text" name="password" id="run-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
-				<input type="checkbox" id="run-post"> post?
-				<input type="button" id="run-button" value="run">
+				<input type="text" name="command" id="trigger-event">
+				pwd:<input type="text" name="password" id="trigger-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
+				<input type="checkbox" id="trigger-post"> post?
+				<input type="button" id="trigger-button" value="run">
 			</div>
 		</form>
 		<form id="presence-form" method="post" action="/mustekala/presence/preauthorize">

@@ -1,3 +1,5 @@
+*UPDATE: Working on new version, not ready for production yet*
+
 Mustekala
 ======
 
@@ -12,9 +14,9 @@ Go to http://wehack.it and see it in action.
 
 Example 2
 -----
-* Clone node-puller on your computer
+* Clone mustekala on your computer
 * Run npm install to get socket.io and Express
-* Run node app
+* Run node mustekala
 * Go to http://localhost:3001/example.html and play with it using different browsers or clients.
 * You can also use curl to make a POST request to push/pull events.
 ````curl -d "channel=yourchannelname&command=alert('hey')&password=yourpassword" http://localhost:3001/puller/run````
@@ -134,6 +136,17 @@ What is still missing:
 * SSL support
 
 * Testing
+
+Author
+------
+
+Diego Araos <d@wehack.it>
+
+Contributors
+------------
+
+Diego Araos
+Herman Junge
 
 License
 -----

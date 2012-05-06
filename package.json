@@ -1,10 +1,16 @@
 {
-    "name": "application-name"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.5.4"
-    , "jade": ">= 0.0.1"
-    , "socket.io": "0.9.6"
+  "author": "Diego Araos <d@wehack.it> (http://wehack.it/)",
+  "name": "mustekala",
+  "description": "push/pull service for real-time apps",
+  "version": "0.0.1",
+  "homepage": "https://github.com/daraosn/mustekala",
+  "repository": {
+    "url": "git://github.com/daraosn/mustekala.git"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
   }
 }
