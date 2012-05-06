@@ -14,7 +14,7 @@ var Mustekala=function(setup) {
 		m.events={
 			'connect': []
 			,'disconnect': []
-			,'run': []
+			,'trigger': []
 			,'subscribe': []
 			,'unsubscribe': []
 			,'log': []
@@ -39,6 +39,15 @@ var Mustekala=function(setup) {
 		m.socket.on('unsubscribe', function(channel) {
 			m.triggerEvent('unsubscribe', channel);
 		});
+		m.socket.on('trigger', function(channel, action, data) {
+			m.triggerEvent('trigger', channel, action, data);
+			
+			var key='-'+channel+'-'+action;
+			if(m.events[key])
+				m.triggerEvent(key, data);
+				
+			console.log('***',m.events)
+		});
 		m.socket.on('disconnect', function() {
 			m.connected = false;
 			m.triggerEvent('disconnect');
@@ -51,16 +60,29 @@ var Mustekala=function(setup) {
 			if(m.debug)
 				console.log('m.subscribe', 'Not connected.');
 		}
+		return {
+			on: function(action, handler) {
+				if(m.debug) {
+					console.log('m.subscribe().channel<'+channel+'>.on', action);
+				}
+				var key='-'+channel+'-'+action;
+				if(!m.events[key])
+					m.events[key]=[];
+				m.events[key].push(function(data) {
+					handler(data);
+				});
+			}
+		}
 	}
 	// TODO: m.disconnet()
 	/*
 	 * This is for testing purposes, do not use it in your front-end code on production
 	 */ 
-	m.trigger=function(password, channel, eventName, data) {
-		if(connected) {
+	m.trigger=function(password, channel, action, data) {
+		if(m.connected) {
 			if(m.debug)
 				console.log('m.trigger', 'WARNING: This is for testing purposes only, do not use on production!');
-			m.socket.emit('trigger', password, channel, eventName, data);
+			m.socket.emit('trigger', password, channel, action, data);
 		} else {
 			if(m.debug)
 				console.log('m.trigger', 'Not connected.');
@@ -93,12 +115,11 @@ var Mustekala=function(setup) {
 		if(m.debug>1)
 			console.log('m.onUnsubscribe');
 	}
-	m.onRun=function(listener) {
-		m.events['run'].push(listener);
+	m.onTrigger=function(listener) {
+		m.events['trigger'].push(listener);
 		if(m.debug>1)
-			console.log('m.onRun');
+			console.log('m.onTrigger');
 	}
-	
 	m.triggerEvent=function() {
 		if(m.debug)
 			console.log('m.triggerEvent',m.triggerEvent.arguments);
@@ -109,7 +130,7 @@ var Mustekala=function(setup) {
 			args.push(m.triggerEvent.arguments[i]);
 			for(var i in m.events[event]) {
 				try {
-						m.events[event][i].apply(m,args);
+					m.events[event][i].apply(m,args);
 				} catch(e) {
 					if(m.debug)
 						console.log(e.toString());

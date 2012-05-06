@@ -3,9 +3,10 @@
 Mustekala
 ======
 
-Real-time Push/Pull notification service made out of node.js, using socket.io.
-It lets you execute javascript from the server side to all clients subscribed to a channel.
-You can send commands on any programming language that supports POST requests.
+Real-time Push/Pull notification service built over socket.io/express/nodeJS.
+It lets you subscribe events which can be triggered from the server side to
+every client subscribed to a channel.
+Supports POST triggers, so it is possible to use any language on the server-side.
 
 Example 1
 -----
@@ -146,9 +147,10 @@ Contributors
 ------------
 
 Diego Araos
+
 Herman Junge
 
 License
 -----
 
-Mustekala is under MIT License. See the License file.
+Mustekala is under MIT License. See LICENSE file.

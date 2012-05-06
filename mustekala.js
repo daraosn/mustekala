@@ -76,27 +76,28 @@ var socket=io.of('/mustekala').on('connection', function(client) {
 	client.on('authentificate', function() {
 		
 	});
-	client.on('run', function(password, channel, command, data) {
-		socketRun(password, channel, command, data)
+	client.on('trigger', function(password, channel, action, data) {
+		console.log('***trigger.data:',data)
+		var result=socketTrigger(password, channel, action, data)
+		if(result)
+			client.emit('log', 'trigger sent!');
+		else
+			client.emit('log', 'trigger not-sent: wrong password!');
 	});
 	client.on('disconnect',function(){
 		socket.emit('log','someone left!');
 	});
 });
 
-function socketRun(password, channel, command, data) {
+function socketTrigger(password, channel, action, data) {
 	if(password==config.password) {
-		// client.emit('log','authorized')
 		if(channel) {
-			socket.to(channel).emit('run', command);
-			//client.emit('log','broadcasted to channel ('+channel+'): '+command);
+			socket.to(channel).emit('trigger', channel, action, data);
 		} else {
-			socket.emit('run', command);
-			//client.emit('log','broadcasted to all: '+command);
+			socket.emit('trigger', channel, action, data);
 		}
 		return true;
 	} else {
-		// client.emit('log','not authorized')
 		return false;
 	}	
 }
@@ -112,13 +113,15 @@ function socketPresencePreauthorize(password) {
 	}
 }
 
-app.post('/mustekala/run', function(req, res) {
+app.post('/mustekala/trigger', function(req, res) {
+	console.log('**** POST received')
 	var password=req.body.password;
 	var channel=req.body.channel;
-	var command=req.body.command;
+	var action=req.body.action;
 	var data=req.body.data;
-	var result=socketRun(password, channel, command);
-	res.send(JSON.stringify({'success':result, 'channel': channel, 'command': command, 'data': data}));
+	var result=socketTrigger(password, channel, action, data);
+	console.log({'password': password, 'channel': channel, 'action': action, 'data': data})
+	res.send(JSON.stringify({'success':result, 'channel': channel, 'action': action, 'data': data}));
 });
 
 app.post('/mustekala/presence/preauthorize', function(req, res) {

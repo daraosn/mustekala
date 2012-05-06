@@ -23,11 +23,37 @@
 				mustekala.onSubscribe(function(channel) {
 					_debug('subscribed to '+channel);
 				});
-				mustekala.onRun(function(channel,command,data) {
-					_debug('channel '+channel+' run: '+command+data);
+				mustekala.onTrigger(function(channel,action,data) {
+					_debug('channel "'+channel+'" triggered action: "'+action+'" with data: '+data);
+				});
+
+				$('#subscribe-button').click(function() {
+					_debug('subscribing to '+$('#subscribe-channel').val()+'...');
+					var channel=mustekala.subscribe($('#subscribe-channel').val());
+					channel.on('asdf', function(data) {
+						alert('asdf triggered! data: '+data);
+					});
+				})
+
+				$('#trigger-button').click(function() {
+						if($('#trigger-post').is(':checked')) {
+							$('#trigger-form').submit();
+						} else {
+							mustekala.trigger(
+								$('#trigger-password').val(),
+								$('#subscribe-channel').val(),
+								$('#trigger-action').val(),
+								$('#trigger-data').val()
+							);
+						}
 				});
 				
-				
+				function _debug(data) {
+					$('.logger').val(function(i, val) {
+						return data + "\n" + ( val ? val : '')
+					});
+				}
+
 				// socket.on('connect', function() {
 				// 
 					// socket.on('run', function(command) {
@@ -43,51 +69,32 @@
 						// _debug('got presence token: '+token);
 					// });
 				// });
-
-				$('#subscribe-button').click(function() {
-					_debug('subscribing to '+$('#subscribe-channel').val()+'...');
-					mustekala.subscribe($('#subscribe-channel').val());
-				})
-
-				$('#trigger-button').click(function() {
-						if($('#trigger-post').is(':checked')) {
-							$('#run-form').submit();
-						} else {
-							mustekala.trigger($('#trigger-password').val(), $('#subscribe-channel').val(), $('#trigger-event').val());
-						}
-				});
-				
-				function _debug(data) {
-					$('.logger').val(function(i, val) {
-						return data + "\n" + ( val ? val : '')
-					});
-				}
-
 			});
 
 		</script>
 		<title>Mustekala :: Example</title>
 	</head>
 	<body>
-		<form id="run-form" method="post" action="/mustekala/run">
+		<form id="trigger-form" method="post" action="/mustekala/trigger">
 			<div>
-				SUBSCRIBE
+				<b>SUBSCRIBE</b>
 				<br>
-				<input type="text" name="channel" id="subscribe-channel">
+				channel: <input type="text" name="channel" id="subscribe-channel">
 				<input type="button" id="subscribe-button" value="subscribe">
 			</div>
 			<div>
-				TRIGGER
+				<b>TRIGGER</b>
 				<br>
-				<input type="text" name="command" id="trigger-event">
-				pwd:<input type="text" name="password" id="trigger-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
+				action:<input type="text" name="action" id="trigger-action">
+				data: <input type="text" name="data" id="trigger-data">
+				password:<input type="text" name="password" id="trigger-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
 				<input type="checkbox" id="trigger-post"> post?
-				<input type="button" id="trigger-button" value="run">
+				<input type="button" id="trigger-button" value="trigger">
 			</div>
 		</form>
 		<form id="presence-form" method="post" action="/mustekala/presence/preauthorize">
 			<div>
-				PRESENCE PREAUTHORIZE
+				<b>PRESENCE PREAUTHORIZE</b>
 				<br>
 				pwd:<input type="text" name="password" id="presence-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
 				<input type="checkbox" id="presence-post"> post?
@@ -95,7 +102,7 @@
 			</div>
 		</form>
 		<div>
-			LOGGER
+			<b>LOGGER</b>
 			<br>
 			<textarea class="logger" rows="20" cols="100"></textarea>
 		</div>
