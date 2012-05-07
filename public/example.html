@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script type="application/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-		<script src="/mustekala.js"></script>
+		<script type="application/javascript" src="jquery.js"></script>
+		<script type="application/javascript" src="mustekala.js"></script>
 		<script>
 			$(function() {
 				var mustekala=new Mustekala({
 					debug: 1
-					
+					,authUrl: '/example/auth'
 				});
 				
 				_debug('connecting...');
