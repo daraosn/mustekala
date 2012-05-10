@@ -12,10 +12,11 @@
     , "jade": ">= 0.0.1"
     , "socket.io": "0.9.6"
     , "request": "2.9.x"
+    , "qs": "0.5.0"
   },
   "devDependencies": {},
   "optionalDependencies": {},
   "engines": {
-    "node": "*"
+    "node": "0.6.x"
   }
 }

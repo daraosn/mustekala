@@ -4,5 +4,5 @@ global.app = module.exports = express.createServer();
 global.mustekala = new Mustekala();
 mustekala.initialize();
 
-app.listen(mustekala.config.port || 3000);
+app.listen(mustekala.config.port);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
