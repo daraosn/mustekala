@@ -13,6 +13,15 @@
 				_debug('connecting...');
 				mustekala.connect(function() {
 					_debug('connected.');
+					
+					// tests:
+					
+					// presence channel:
+					var presenceChannel=mustekala.subscribe('presence@123');
+					presenceChannel.onMemberJoin(function(user) {
+						console.log('member joined:', user);
+					});
+					
 				});
 				mustekala.onDisconnect(function() {
 					_debug('disconnected from server.');
