@@ -1,0 +1,7 @@
+div
+	script
+		window.onload=function() {
+			var mustekala=JSON.parse('!{mustekalaJSON}');
+			document.body.appendChild(prettyPrint(mustekala,{maxArray:999,expanded:true,maxDepth:5}))
+			setTimeout(function() { document.location=document.location.href }, 500)
+		}

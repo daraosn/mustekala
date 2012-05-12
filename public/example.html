@@ -19,7 +19,10 @@
 					// presence channel:
 					var presenceChannel=mustekala.subscribe('presence@123');
 					presenceChannel.onMemberJoin(function(user) {
-						console.log('member joined:', user);
+						_debug('member joined:' + user.id);
+					});
+					presenceChannel.onMemberLeave(function(user) {
+						_debug('member left:' + user.id);
 					});
 					
 				});
