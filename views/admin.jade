@@ -1,7 +1,28 @@
 div
+	script(type='text/javascript', src='/javascripts/prettyprint.js')
+	script(type='text/javascript', src='/javascripts/jquery.js')
 	script
-		window.onload=function() {
-			var mustekala=JSON.parse('!{mustekalaJSON}');
-			document.body.appendChild(prettyPrint(mustekala,{maxArray:999,expanded:true,maxDepth:5}))
-			setTimeout(function() { document.location=document.location.href }, 500)
-		}
+		$(function() {
+			var fullView=false;
+			var refresh=function() {
+				$.ajax({
+					url: "/admin/data",
+					type: "POST",
+					dataType: 'json',
+					data: {fullView: fullView},
+					success: function(data) {
+						var table = prettyPrint(data,{maxArray:999,expanded:true,maxDepth:5});
+						$('#dump').html(table);
+					}
+				});
+				setTimeout(refresh,1000);
+			};
+			refresh();
+			$('#view-compact').click(function() { fullView=false; $('#dump').html(''); refresh(); return false; });
+			$('#view-full').click(function() { fullView=true; $('#dump').html(''); refresh(); return false; });
+		});
+	div(id="menu") View as: 
+		a(id="view-compact",href="#") Compact
+		&nbsp;|&nbsp;
+		a(id="view-full",href="#") Full
+	div(id="dump",style="padding-top: 10px;") Loading...
