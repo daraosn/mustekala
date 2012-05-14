@@ -12,17 +12,26 @@
 				
 				_debug('connecting...');
 				mustekala.connect(function() {
-					_debug('connected.');
-					
-					// tests:
-					
+					_debug('connected.');					
 					// presence channel:
-					var presenceChannel=mustekala.subscribe('presence@123');
+					var presenceChannel=mustekala.subscribe('presence@example-channel');
+					presenceChannel.onSubscribe(function() {
+						var members=presenceChannel.members;
+						$.each(members, function(id, member) {
+							$('#presence-members #user-'+id).css('color', '#0c0');
+						});
+						var user=presenceChannel.members.me;
+						if(user) {
+							$('#presence-members #user-name').html(' '+user.data.nickname+' ('+user.data.name+')');
+						}
+					});
 					presenceChannel.onMemberJoin(function(user) {
-						_debug('member joined:' + user.id);
+						_debug('member joined. id:' + user.id);
+						$('#presence-members #user-'+user.id).css('color', '#0c0');
 					});
 					presenceChannel.onMemberLeave(function(user) {
-						_debug('member left:' + user.id);
+						_debug('member left. id:' + user.id);
+						$('#presence-members #user-'+user.id).css('color', '#aaa');
 					});
 					
 				});
@@ -42,8 +51,11 @@
 				$('#subscribe-button').click(function() {
 					_debug('subscribing to '+$('#subscribe-channel').val()+'...');
 					var channel=mustekala.subscribe($('#subscribe-channel').val());
-					channel.on('asdf', function(data) {
-						alert('asdf triggered! data: '+data);
+					channel.on('show-alert', function(data) {
+						alert('Hey! this is cool, isn\'t it?');
+						if(data) {
+							alert('Oh, and your data is: '+data);
+						}
 					});
 				})
 
@@ -65,22 +77,6 @@
 						return data + "\n" + ( val ? val : '')
 					});
 				}
-
-				// socket.on('connect', function() {
-				// 
-					// socket.on('run', function(command) {
-						// _debug('running: '+command)
-						// try {
-							// eval(command);
-							// _debug('done!')
-						// } catch(e) {
-							// _debug('failed!')
-						// }
-					// });
-					// socket.on('presence-token', function(token) {
-						// _debug('got presence token: '+token);
-					// });
-				// });
 			});
 
 		</script>
@@ -91,28 +87,29 @@
 			<div>
 				<b>SUBSCRIBE</b>
 				<br>
-				channel: <input type="text" name="channel" id="subscribe-channel" value="presence@123">
+				channel: <input type="text" name="channel" id="subscribe-channel" value="example-channel">
 				<input type="button" id="subscribe-button" value="subscribe">
 			</div>
 			<div>
 				<b>TRIGGER</b>
 				<br>
-				action:<input type="text" name="action" id="trigger-action">
-				data: <input type="text" name="data" id="trigger-data">
+				action:<input type="text" name="action" id="trigger-action" value="show-alert">
+				data: <input type="text" name="data" id="trigger-data" value="lorem ipsum">
 				password:<input type="text" name="password" id="trigger-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
 				<input type="checkbox" id="trigger-post"> post?
 				<input type="button" id="trigger-button" value="trigger">
 			</div>
 		</form>
-		<form id="presence-form" method="post" action="/mustekala/presence/preauthorize">
-			<div>
-				<b>PRESENCE PREAUTHORIZE</b>
-				<br>
-				pwd:<input type="text" name="password" id="presence-password" value="bGINGS/(ADNfg78GASIMDbkASbj">
-				<input type="checkbox" id="presence-post"> post?
-				<input type="button" id="presence-preauthorize-button" value="get token">
+		<div>
+			<b>PRESENCE</b>
+			<div id="presence-members">
+				Hi<span id="user-name"></span>!<br>
+				Channel users: [
+				<span id="user-1000" style="color: #aaa;">joe</span>
+				<span id="user-1001" style="color: #aaa;">deb</span>
+				]
 			</div>
-		</form>
+		</div>
 		<div>
 			<b>LOGGER</b>
 			<br>
