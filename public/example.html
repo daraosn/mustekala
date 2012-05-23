@@ -11,7 +11,7 @@
 				});
 				
 				_debug('connecting...');
-				mustekala.connect(function() {
+				mustekala.connect('/mustekala', function() {
 					_debug('connected.');					
 					// presence channel:
 					var presenceChannel=mustekala.subscribe('presence@example-channel');
