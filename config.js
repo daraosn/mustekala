@@ -1,6 +1,6 @@
 module.exports={
 	development: {
-		password: 'bGINGS/(ADNfg78GASIMDbkASbj'
+		password: 'my_super_secure_password'
 		,port: 3001
 	}
 	// add your own config for different environments (using NODE_ENV):

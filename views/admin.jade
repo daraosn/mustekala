@@ -7,7 +7,7 @@ div
 			var fullView=false;
 			var refresh=function(noRepeat) {
 				$.ajax({
-					url: "/admin/data",
+					url: "/admin/data?password=#{password}",
 					type: "POST",
 					dataType: 'json',
 					data: {fullView: fullView},

@@ -1,0 +1,109 @@
+div
+	script(type='text/javascript', src='/javascripts/jquery.js')
+	script(type='text/javascript', src='/mustekala.js')
+	script
+		$(function() {
+			var mustekala=new Mustekala({
+				debug: 1
+				,authUrl: '/example/auth'
+			});
+			
+			_debug('connecting...');
+			mustekala.connect('/mustekala', function() {
+				_debug('connected.');					
+				// presence channel:
+				var presenceChannel=mustekala.subscribe('presence@example-channel');
+				presenceChannel.onSubscribe(function() {
+					var members=presenceChannel.members;
+					$.each(members, function(id, member) {
+						$('#presence-members #user-'+id).css('color', '#0c0');
+					});
+					var user=presenceChannel.members.me;
+					if(user) {
+						$('#presence-members #user-name').html(' '+user.data.nickname+' ('+user.data.name+')');
+					}
+				});
+				presenceChannel.onMemberJoin(function(user) {
+					_debug('member joined. id:' + user.id);
+					$('#presence-members #user-'+user.id).css('color', '#0c0');
+				});
+				presenceChannel.onMemberLeave(function(user) {
+					_debug('member left. id:' + user.id);
+					$('#presence-members #user-'+user.id).css('color', '#aaa');
+				});
+			});
+			mustekala.onDisconnect(function() {
+				_debug('disconnected from server.');
+			});
+			mustekala.onLog(function(data) {
+				_debug('log: '+data);
+			});
+			mustekala.onSubscribe(function(channel) {
+				_debug('subscribed to '+channel);
+			});
+			mustekala.onTrigger(function(channel,action,data) {
+				_debug('channel "'+channel+'" triggered action: "'+action+'" with data: '+data);
+			});
+			$('#subscribe-button').click(function() {
+				_debug('subscribing to '+$('#subscribe-channel').val()+'...');
+				var channel=mustekala.subscribe($('#subscribe-channel').val());
+				channel.on('show-alert', function(data) {
+					alert("Hey! this is cool, isn't it?");
+					if(data) {
+						alert("Oh, and your data is: "+data);
+					}
+				});
+			})
+			$('#trigger-button').click(function() {
+				if($('#trigger-post').is(':checked')) {
+					$('#trigger-form').submit();
+				} else {
+					mustekala.trigger(
+						$('#trigger-password').val(),
+						$('#subscribe-channel').val(),
+						$('#trigger-action').val(),
+						$('#trigger-data').val()
+					);
+				}
+			});
+			function _debug(data) {
+				$('.logger').val(function(i, val) {
+					return data + "\\n" + ( val ? val : '')
+				});
+			}
+		});
+	form#trigger-form(method="post", action="/mustekala/trigger")
+		div
+			b SUBSCRIBE
+			br
+			channel
+			input#subscribe-channel(type="text", name="channel", value="example-channel")
+			input#subscribe-button(type="button", value="subscribe")
+		div
+			b TRIGGER
+			br
+			span action\:
+			input#trigger-action(type="text", name="action", value="show-alert")
+			span data\:
+			input#trigger-data(type="text", name="data", value="lorem ipsum")
+			span password\:
+			input#trigger-password(type="text", name="password", value="#{password}")
+			input#trigger-post(type="checkbox")
+			span post?
+			input#trigger-button(type="button", value="trigger")
+	div
+		b PRESENCE
+		div#presence-members
+			span Hi
+			span#user-name
+			span !
+			br
+			Channel users: [
+			span#user-1000(style="color: #aaa;") joe
+			&nbsp;
+			span#user-1001(style="color: #aaa;") deb
+			]
+	div
+		b LOGGER
+		br
+		textarea.logger(rows="20", cols="100")
