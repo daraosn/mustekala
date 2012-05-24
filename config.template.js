@@ -1,4 +1,9 @@
 module.exports={
-	password: 'bGINGS/(ADNfg78GASIMDbkASbj' // replace with your own
-	,port: 4567 // default: 4567
+	development: {
+		password: 'bGINGS/(ADNfg78GASIMDbkASbj'
+		,port: 4567
+	}
+	// add your own config for different environments:
+	,test: { }
+	,production: { }
 }
