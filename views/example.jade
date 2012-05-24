@@ -59,7 +59,7 @@ div
 					$('#trigger-form').submit();
 				} else {
 					mustekala.trigger(
-						$('#trigger-password').val(),
+						decodeURIComponent($('#trigger-password').val()),
 						$('#subscribe-channel').val(),
 						$('#trigger-action').val(),
 						$('#trigger-data').val()
